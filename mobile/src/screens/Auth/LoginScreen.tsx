@@ -51,13 +51,21 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Back to role selection */}
+          <TouchableOpacity
+            style={styles.backRow}
+            onPress={() => navigation.navigate('RoleSelection')}
+          >
+            <Text style={styles.backRowText}>←  Choisir mon espace</Text>
+          </TouchableOpacity>
+
           {/* Logo & Brand */}
           <View style={styles.brandContainer}>
             <View style={styles.logoCircle}>
               <Text style={styles.logoEmoji}>🧠</Text>
             </View>
             <Text style={styles.brandName}>FutureMinds</Text>
-            <Text style={styles.brandTagline}>Accompagner avec bienveillance</Text>
+            <Text style={styles.brandTagline}>Espace Parent</Text>
           </View>
 
           {/* Form Card */}
@@ -152,8 +160,18 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     paddingHorizontal: Spacing[5],
-    paddingTop: Spacing[16],
+    paddingTop: Spacing[12],
     paddingBottom: Spacing[8],
+  },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing[6],
+  },
+  backRowText: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: FontSize.sm,
+    color: Colors.primary,
   },
   brandContainer: {
     alignItems: 'center',

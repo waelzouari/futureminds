@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -35,6 +36,8 @@ export const CreateChildScreen: React.FC<Props> = ({ navigation }) => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [createdCode, setCreatedCode] = useState<string | null>(null);
+  const [createdName, setCreatedName] = useState<string>('');
 
   const toggleDifficulty = (difficulty: ObservedDifficulty) => {
     if (selectedDifficulties.includes(difficulty)) {
@@ -77,8 +80,9 @@ export const CreateChildScreen: React.FC<Props> = ({ navigation }) => {
       // Update store
       addChild(newChild);
       
-      // Redirect back
-      navigation.goBack();
+      // Show code to parent before navigating back
+      setCreatedName(newChild.firstName);
+      setCreatedCode(newChild.childCode);
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue lors de la création du profil.');
     } finally {
@@ -86,8 +90,51 @@ export const CreateChildScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const handleCodeDismiss = () => {
+    setCreatedCode(null);
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
+      {/* Child Code Reveal Modal */}
+      <Modal
+        visible={createdCode !== null}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconContainer}>
+              <Text style={styles.modalIcon}>🎉</Text>
+            </View>
+            <Text style={styles.modalTitle}>Profil créé avec succès !</Text>
+            <Text style={styles.modalSubtitle}>
+              Voici le code de connexion de {createdName}.
+              Communiquez-le-lui pour qu'il puisse se connecter.
+            </Text>
+
+            <View style={styles.codeContainer}>
+              <Text style={styles.codeLabel}>Identifiant de connexion</Text>
+              <View style={styles.codeBox}>
+                {(createdCode || '').split('').map((digit, i) => (
+                  <View key={i} style={styles.codeDigitBox}>
+                    <Text style={styles.codeDigit}>{digit}</Text>
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.codeHint}>
+                L'enfant entre ce code sur l'écran "Connexion Enfant"
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.modalButton} onPress={handleCodeDismiss}>
+              <Text style={styles.modalButtonText}>✓  J'ai noté le code</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <LinearGradient
         colors={['#F6F8FE', '#EEF3FF']}
         style={styles.gradient}
@@ -439,4 +486,103 @@ const styles = StyleSheet.create({
   },
   submitButton: { marginTop: Spacing[2] },
   disclaimer: { marginHorizontal: 0, marginTop: Spacing[2] },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing[5],
+  },
+  modalCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius['2xl'],
+    padding: Spacing[7],
+    alignItems: 'center',
+    width: '100%',
+    gap: Spacing[3],
+    ...Shadows.lg,
+  },
+  modalIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing[1],
+  },
+  modalIcon: { fontSize: 40 },
+  modalTitle: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize['2xl'],
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    letterSpacing: -0.3,
+  },
+  modalSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.base,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  codeContainer: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing[5],
+    gap: Spacing[3],
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    marginVertical: Spacing[2],
+  },
+  codeLabel: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  codeBox: {
+    flexDirection: 'row',
+    gap: Spacing[3],
+  },
+  codeDigitBox: {
+    width: 54,
+    height: 64,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.primary,
+  },
+  codeDigit: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: 30,
+    color: '#FFFFFF',
+  },
+  codeHint: {
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  modalButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.xl,
+    paddingVertical: Spacing[4],
+    paddingHorizontal: Spacing[8],
+    width: '100%',
+    alignItems: 'center',
+    marginTop: Spacing[2],
+    ...Shadows.primary,
+  },
+  modalButtonText: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.lg,
+    color: '#FFFFFF',
+  },
 });

@@ -1,7 +1,9 @@
 export type AuthStackParamList = {
   Onboarding: undefined;
+  RoleSelection: undefined;
   Login: undefined;
   Register: undefined;
+  ChildLogin: undefined;
 };
 
 export type ParentTabParamList = {
@@ -18,6 +20,7 @@ export type ChildTabParamList = {
 export type AppStackParamList = {
   ParentTabs: undefined;
   ChildTabs: { childId: string };
+  ChildDashboard: { childId: string };
   ChildProfile: { childId: string; isNew?: boolean };
   CreateChild: undefined;
   UnityGame: {
@@ -30,6 +33,9 @@ export type AppStackParamList = {
     sessionId: string;
     childId: string;
     gameId: string;
+  };
+  GameSelection: {
+    childId: string;
   };
 };
 
