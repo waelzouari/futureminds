@@ -30,6 +30,7 @@ export type ObservedDifficulty =
 
 export interface ChildProfile {
   id: string;
+  childCode: string; // code numérique unique à 4 chiffres généré automatiquement
   parentId: string;
   firstName: string;
   pseudonym?: string;

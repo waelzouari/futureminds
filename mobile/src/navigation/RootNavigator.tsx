@@ -4,19 +4,27 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { authService } from '../services/authService';
-import { useAuthStore, useChildrenStore } from '../store';
+import { childAuthService } from '../services/childAuthService';
+import { useAuthStore, useChildrenStore, useChildAuthStore } from '../store';
 import { Colors, FontFamily, FontSize } from '../theme';
 
-// Screens
+// Screens — Auth
+import { RoleSelectionScreen } from '../screens/Auth/RoleSelectionScreen';
 import { LoginScreen } from '../screens/Auth/LoginScreen';
 import { RegisterScreen } from '../screens/Auth/RegisterScreen';
+import { ChildLoginScreen } from '../screens/Auth/ChildLoginScreen';
 import { OnboardingScreen } from '../screens/Onboarding/OnboardingScreen';
+
+// Screens — Parent App
 import { DashboardScreen } from '../screens/ParentDashboard/DashboardScreen';
 import { ChildrenListScreen } from '../screens/ParentDashboard/ChildrenListScreen';
 import { ProfileScreen } from '../screens/ParentDashboard/ProfileScreen';
 import { ChildProfileScreen } from '../screens/ChildProfile/ChildProfileScreen';
 import { CreateChildScreen } from '../screens/ChildProfile/CreateChildScreen';
+
+// Screens — Child App
 import { ChildHomeScreen } from '../screens/ChildHome/ChildHomeScreen';
+import { ChildDashboardScreen } from '../screens/ChildHome/ChildDashboardScreen';
 import { GameSelectionScreen } from '../screens/GameSelection/GameSelectionScreen';
 import { UnityGameScreen } from '../screens/UnityGame/UnityGameScreen';
 import { SessionReportScreen } from '../screens/SessionReport/SessionReportScreen';
@@ -78,17 +86,25 @@ const ParentTabNavigator = () => (
   </ParentTab.Navigator>
 );
 
+// Auth navigator — starts at Onboarding, includes RoleSelection + ChildLogin
 const AuthNavigator = () => (
   <AuthStack.Navigator
     screenOptions={{ headerShown: false, animation: 'fade' }}
     initialRouteName="Onboarding"
   >
     <AuthStack.Screen name="Onboarding" component={OnboardingScreen} />
+    <AuthStack.Screen name="RoleSelection" component={RoleSelectionScreen} />
     <AuthStack.Screen name="Login" component={LoginScreen} />
     <AuthStack.Screen name="Register" component={RegisterScreen} />
+    <AuthStack.Screen
+      name="ChildLogin"
+      component={ChildLoginScreen}
+      options={{ animation: 'slide_from_right' }}
+    />
   </AuthStack.Navigator>
 );
 
+// Parent app navigator
 const AppNavigator = () => (
   <AppStack.Navigator screenOptions={{ headerShown: false }}>
     <AppStack.Screen name="ParentTabs" component={ParentTabNavigator} />
@@ -105,6 +121,11 @@ const AppNavigator = () => (
     <AppStack.Screen
       name="ChildTabs"
       component={ChildHomeScreen}
+      options={{ animation: 'slide_from_right' }}
+    />
+    <AppStack.Screen
+      name="ChildDashboard"
+      component={ChildDashboardScreen}
       options={{ animation: 'slide_from_right' }}
     />
     <AppStack.Screen
@@ -125,23 +146,70 @@ const AppNavigator = () => (
   </AppStack.Navigator>
 );
 
+// Child app navigator — standalone with ChildDashboard as entry point
+const ChildAppNavigator = () => (
+  <AppStack.Navigator screenOptions={{ headerShown: false }}>
+    <AppStack.Screen
+      name="ChildDashboard"
+      component={ChildDashboardScreen}
+      options={{ animation: 'fade' }}
+    />
+    <AppStack.Screen
+      name="GameSelection"
+      component={GameSelectionScreen as any}
+      options={{ animation: 'slide_from_right' }}
+    />
+    <AppStack.Screen
+      name="UnityGame"
+      component={UnityGameScreen}
+      options={{ animation: 'slide_from_bottom' }}
+    />
+    <AppStack.Screen
+      name="SessionReport"
+      component={SessionReportScreen}
+      options={{ animation: 'slide_from_right' }}
+    />
+    {/* Required by AppStackParamList but not used in child flow */}
+    <AppStack.Screen name="ParentTabs" component={ParentTabNavigator} />
+    <AppStack.Screen name="ChildTabs" component={ChildHomeScreen} />
+    <AppStack.Screen name="ChildProfile" component={ChildProfileScreen} />
+    <AppStack.Screen name="CreateChild" component={CreateChildScreen} />
+  </AppStack.Navigator>
+);
+
 export const RootNavigator = () => {
   const { user, setUser } = useAuthStore();
+  const { childSession, setChildSession } = useChildAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const initialize = async () => {
-      await authService.initialize();
+      // Initialize both auth services in parallel
+      await Promise.all([
+        authService.initialize(),
+        childAuthService.initialize(),
+      ]);
+
       const currentUser = authService.getCurrentUser();
+      const currentChild = childAuthService.getCurrentChild();
+
       setUser(currentUser);
+      setChildSession(currentChild);
       setIsInitializing(false);
     };
     initialize();
 
-    const unsubscribe = authService.onAuthStateChanged((user) => {
+    const unsubscribeParent = authService.onAuthStateChanged((user) => {
       setUser(user);
     });
-    return unsubscribe;
+    const unsubscribeChild = childAuthService.onChildAuthStateChanged((child) => {
+      setChildSession(child);
+    });
+
+    return () => {
+      unsubscribeParent();
+      unsubscribeChild();
+    };
   }, []);
 
   if (isInitializing) {
@@ -154,7 +222,12 @@ export const RootNavigator = () => {
 
   return (
     <NavigationContainer>
-      {user ? <AppNavigator /> : <AuthNavigator />}
+      {childSession
+        ? <ChildAppNavigator />
+        : user
+          ? <AppNavigator />
+          : <AuthNavigator />
+      }
     </NavigationContainer>
   );
 };

@@ -75,11 +75,11 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     if (currentIndex < SLIDES.length - 1) {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
     } else {
-      navigation.replace('Login');
+      navigation.replace('RoleSelection');
     }
   };
 
-  const skip = () => navigation.replace('Login');
+  const skip = () => navigation.replace('RoleSelection');
 
   const renderSlide = ({ item }: { item: Slide }) => (
     <View style={styles.slide}>
@@ -154,7 +154,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.finalButtons}>
               <PrimaryButton title="Créer un compte" onPress={() => navigation.replace('Register')} />
               <View style={styles.spacer} />
-              <SecondaryButton title="Se connecter" onPress={() => navigation.replace('Login')} />
+              <SecondaryButton title="Choisir mon espace" onPress={() => navigation.replace('RoleSelection')} />
             </View>
           )}
         </View>

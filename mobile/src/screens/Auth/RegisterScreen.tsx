@@ -21,14 +21,11 @@ type Props = {
   navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 };
 
-type Role = 'parent' | 'therapist';
-
 export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<Role>('parent');
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const { signUp, isLoading, error, clearError } = useAuthStore();
@@ -51,7 +48,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     setLocalError(null);
     clearError();
     try {
-      await signUp(email.trim().toLowerCase(), password, displayName.trim(), role);
+      await signUp(email.trim().toLowerCase(), password, displayName.trim(), 'parent');
     } catch {
       // Error handled by store
     }
@@ -75,7 +72,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('RoleSelection')} style={styles.backButton}>
               <Text style={styles.backIcon}>←</Text>
             </TouchableOpacity>
             <View style={styles.logoSmall}>
@@ -86,28 +83,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.title}>Créer un compte</Text>
           <Text style={styles.subtitle}>Rejoignez FutureMinds pour accompagner vos enfants.</Text>
 
-          {/* Role Selection */}
-          <View style={styles.roleContainer}>
-            <Text style={styles.roleLabel}>Je suis :</Text>
-            <View style={styles.roleButtons}>
-              <TouchableOpacity
-                style={[styles.roleButton, role === 'parent' && styles.roleButtonActive]}
-                onPress={() => setRole('parent')}
-              >
-                <Text style={styles.roleIcon}>👨‍👧</Text>
-                <Text style={[styles.roleText, role === 'parent' && styles.roleTextActive]}>Parent</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.roleButton, role === 'therapist' && styles.roleButtonActive]}
-                onPress={() => setRole('therapist')}
-              >
-                <Text style={styles.roleIcon}>🩺</Text>
-                <Text style={[styles.roleText, role === 'therapist' && styles.roleTextActive]}>Thérapeute</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
 
-          {/* Form Card */}
           <View style={styles.formCard}>
             {displayError && (
               <ErrorBanner

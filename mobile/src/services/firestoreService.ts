@@ -7,6 +7,47 @@ import { ChildProfile, GameSession, Metrics, LlmReport } from '../models';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+const CHILD_CODES_INDEX_KEY = '@futureminds_child_codes';
+
+interface ChildCodeEntry {
+  childId: string;
+  parentId: string;
+  firstName: string;
+  avatarEmoji: string;
+  avatarColor: string;
+}
+
+async function getAllChildCodes(): Promise<Record<string, ChildCodeEntry>> {
+  try {
+    const stored = await AsyncStorage.getItem(CHILD_CODES_INDEX_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function generateUniqueChildCode(): Promise<string> {
+  const existingCodes = await getAllChildCodes();
+  let code: string;
+  do {
+    // Generate a random 4-digit code between 1000 and 9999
+    code = String(Math.floor(1000 + Math.random() * 9000));
+  } while (existingCodes[code]);
+  return code;
+}
+
+async function registerChildCode(code: string, entry: ChildCodeEntry): Promise<void> {
+  const codes = await getAllChildCodes();
+  codes[code] = entry;
+  await AsyncStorage.setItem(CHILD_CODES_INDEX_KEY, JSON.stringify(codes));
+}
+
+async function removeChildCode(code: string): Promise<void> {
+  const codes = await getAllChildCodes();
+  delete codes[code];
+  await AsyncStorage.setItem(CHILD_CODES_INDEX_KEY, JSON.stringify(codes));
+}
+
 // ─── Children ────────────────────────────────────────────────────────────────
 async function getChildren(parentId: string): Promise<ChildProfile[]> {
   await delay(300);
@@ -19,14 +60,25 @@ async function getChild(childId: string, parentId: string): Promise<ChildProfile
   return children.find(c => c.id === childId) || null;
 }
 
+async function getChildByCode(code: string): Promise<ChildProfile | null> {
+  await delay(400);
+  const codes = await getAllChildCodes();
+  const entry = codes[code];
+  if (!entry) return null;
+  const children = await getChildren(entry.parentId);
+  return children.find(c => c.id === entry.childId) || null;
+}
+
 async function createChild(
-  child: Omit<ChildProfile, 'id' | 'createdAt' | 'updatedAt' | 'totalSessions' | 'averageScore'>,
+  child: Omit<ChildProfile, 'id' | 'childCode' | 'createdAt' | 'updatedAt' | 'totalSessions' | 'averageScore'>,
   parentId: string
 ): Promise<ChildProfile> {
   await delay(500);
+  const childCode = await generateUniqueChildCode();
   const newChild: ChildProfile = {
     ...child,
     id: `child_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    childCode,
     parentId,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -39,6 +91,14 @@ async function createChild(
     `@futureminds_children_${parentId}`,
     JSON.stringify([...children, newChild])
   );
+  // Register code in global index
+  await registerChildCode(childCode, {
+    childId: newChild.id,
+    parentId,
+    firstName: newChild.firstName,
+    avatarEmoji: newChild.avatarEmoji,
+    avatarColor: newChild.avatarColor,
+  });
   return newChild;
 }
 
@@ -62,11 +122,16 @@ async function updateChild(
 async function deleteChild(childId: string, parentId: string): Promise<void> {
   await delay(400);
   const children = await getChildren(parentId);
+  const child = children.find(c => c.id === childId);
   const filtered = children.filter(c => c.id !== childId);
   await AsyncStorage.setItem(
     `@futureminds_children_${parentId}`,
     JSON.stringify(filtered)
   );
+  // Remove from global code index
+  if (child?.childCode) {
+    await removeChildCode(child.childCode);
+  }
   // Also remove sessions
   await AsyncStorage.removeItem(`@futureminds_sessions_${childId}`);
   await AsyncStorage.removeItem(`@futureminds_reports_${childId}`);
@@ -154,6 +219,7 @@ export const firestoreService = {
   // Children
   getChildren,
   getChild,
+  getChildByCode,
   createChild,
   updateChild,
   deleteChild,
