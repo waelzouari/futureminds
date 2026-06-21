@@ -17,6 +17,11 @@ import { metricsService } from '../../services/metricsService';
 import { llmAnalysisService } from '../../services/llmAnalysisService';
 import { WebView } from 'react-native-webview';
 import { getReactionGameHtml } from '../../games/reaction_01';
+import { getAttentionGameHtml } from '../../games/attention_visual_01';
+import { getMemoryGameHtml } from '../../games/memory_01';
+import { getInhibitionGameHtml } from '../../games/inhibition_01';
+import { getSpatialGameHtml } from '../../games/spatial_3d_01';
+import { getFocusGameHtml } from '../../games/focus_timer_01';
 import { Colors, FontFamily, FontSize, Spacing, BorderRadius } from '../../theme';
 import { GAME_INFO } from '../../models/GameSession';
 
@@ -35,23 +40,15 @@ export const UnityGameScreen: React.FC<Props> = ({ navigation, route }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const getGameHtml = () => {
-    // For now, if it's the reaction game, use the actual game,
-    // otherwise fallback to a generic placeholder HTML.
-    if (gameId === 'reaction_01') {
-      return getReactionGameHtml(difficultyLevel);
+    switch(gameId) {
+      case 'reaction_01': return getReactionGameHtml(difficultyLevel);
+      case 'attention_visual_01': return getAttentionGameHtml(difficultyLevel);
+      case 'memory_01': return getMemoryGameHtml(difficultyLevel);
+      case 'inhibition_01': return getInhibitionGameHtml(difficultyLevel);
+      case 'spatial_3d_01': return getSpatialGameHtml(difficultyLevel);
+      case 'focus_timer_01': return getFocusGameHtml(difficultyLevel);
+      default: return getReactionGameHtml(difficultyLevel); // Fallback
     }
-    // Fallback simple HTML for other games not yet implemented
-    return `
-      <html>
-        <body style="background-color:#0B0C1E; color:white; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; text-align:center;">
-          <h1>${game.title}</h1>
-          <p>En cours de développement...</p>
-          <button onclick="window.ReactNativeWebView.postMessage(JSON.stringify({ score: 50, reactionTime: 1, numberOfErrors: 2, correctAnswers: 8, missedTargets: 1, impulsiveClicks: 1, focusDuration: 10, levelCompleted: true }))" style="padding:15px; margin-top:20px; font-size:18px; border-radius:10px; background:#4A7CF7; color:white; border:none;">
-            Simuler la fin de partie
-          </button>
-        </body>
-      </html>
-    `;
   };
 
   const handleGameFinished = async (gameResults: any) => {
