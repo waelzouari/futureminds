@@ -7,33 +7,56 @@ import {
   TouchableOpacity,
   Animated,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { AppStackParamList } from '../../navigation/types';
 import { useChildAuthStore } from '../../store';
-import { Colors, FontFamily, FontSize, Spacing, BorderRadius, Shadows } from '../../theme';
+import { FontFamily, FontSize, Spacing, BorderRadius, Shadows } from '../../theme';
 
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList, 'ChildDashboard'>;
   route: RouteProp<AppStackParamList, 'ChildDashboard'>;
 };
 
-const TIPS = [
-  'Fais des petites pauses quand tu te sens fatigué. C\'est en restant calme qu\'on obtient le meilleur score !',
-  'Respire profondément avant de commencer un jeu. Tu seras plus concentré !',
-  'N\'oublie pas : chaque partie t\'aide à progresser, même si tu ne gagnes pas !',
-  'Boire de l\'eau avant de jouer aide ton cerveau à être plus alerte 🧠',
-];
+// Palette TDAH-friendly : lumineuse, contrastée, chaque section distincte
+const C = {
+  bg: '#F0F6FF',           // bleu pastel très doux — fond principal
+  card: '#FFFFFF',         // cartes blanches nettes
+  text: '#1A2340',         // texte principal très lisible
+  textSoft: '#6B7A99',     // texte secondaire
+
+  // Sections — couleur différente par zone
+  blue:   '#4A90E2',       // jeu principal
+  blueBg: '#E8F2FF',
+  green:  '#27AE60',       // stats "bonnes réponses"
+  greenBg:'#E8F8EF',
+  orange: '#F5A623',       // score / niveau
+  orangeBg:'#FFF5E0',
+  purple: '#9B59B6',       // badges (mais doux)
+  purpleBg:'#F5EEF8',
+  coral:  '#E84393',       // CTA principal (attrayant)
+  coralBg:'#FEE8F4',
+
+  border: '#DDE8FF',
+};
 
 const BADGES = [
-  { emoji: '🎖️', name: 'Super Joueur', unlocked: true },
-  { emoji: '🔥', name: 'En Feu', unlocked: true },
-  { emoji: '⭐', name: 'Champion', unlocked: true },
-  { emoji: '🏆', name: 'Légendaire', unlocked: false },
-  { emoji: '💎', name: 'Diamant', unlocked: false },
-  { emoji: '🚀', name: 'Explorateur', unlocked: false },
+  { emoji: '🎖️', name: 'Super Joueur', unlocked: true,  color: C.orange },
+  { emoji: '🔥', name: 'En Feu',       unlocked: true,  color: C.coral  },
+  { emoji: '⭐', name: 'Champion',     unlocked: true,  color: C.blue   },
+  { emoji: '🏆', name: 'Légendaire',   unlocked: false, color: '#CCC'   },
+  { emoji: '💎', name: 'Diamant',      unlocked: false, color: '#CCC'   },
+  { emoji: '🚀', name: 'Explorateur',  unlocked: false, color: '#CCC'   },
+];
+
+const TIPS = [
+  'Fais une petite pause si tu te sens fatigué. Ton cerveau sera plus alerte ! 🧠',
+  'Bois de l\'eau avant de jouer — ça aide à se concentrer ! 💧',
+  'Respire profondément avant de commencer. Tu seras plus focus ! 🌬️',
+  'Chaque partie te rend plus fort(e), même si tu ne gagnes pas ! 💪',
 ];
 
 export const ChildDashboardScreen: React.FC<Props> = ({ navigation, route }) => {
@@ -41,23 +64,21 @@ export const ChildDashboardScreen: React.FC<Props> = ({ navigation, route }) => 
   const child = childSession;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
   const avatarPulse = useRef(new Animated.Value(1)).current;
 
   const randomTip = TIPS[Math.floor(Math.random() * TIPS.length)];
 
   useEffect(() => {
-    // Entry animation
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
     ]).start();
 
-    // Pulsing avatar
     const pulse = Animated.loop(
       Animated.sequence([
-        Animated.timing(avatarPulse, { toValue: 1.06, duration: 1200, useNativeDriver: true }),
-        Animated.timing(avatarPulse, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        Animated.timing(avatarPulse, { toValue: 1.05, duration: 1400, useNativeDriver: true }),
+        Animated.timing(avatarPulse, { toValue: 1,    duration: 1400, useNativeDriver: true }),
       ])
     );
     pulse.start();
@@ -66,153 +87,127 @@ export const ChildDashboardScreen: React.FC<Props> = ({ navigation, route }) => 
 
   if (!child) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Session expirée. Reconnecte-toi !</Text>
+      <View style={styles.errorWrap}>
+        <Text style={styles.errorTxt}>Session expirée. Reconnecte-toi !</Text>
       </View>
     );
   }
 
   const handleSignOut = () => {
-    Alert.alert(
-      'Se déconnecter ?',
-      'Tu vas quitter ton espace. À bientôt !',
-      [
-        { text: 'Rester', style: 'cancel' },
-        {
-          text: 'Se déconnecter',
-          style: 'destructive',
-          onPress: () => signOutChild(),
-        },
-      ]
-    );
+    Alert.alert('Se déconnecter ?', 'À bientôt ! 👋', [
+      { text: 'Rester', style: 'cancel' },
+      { text: 'Se déconnecter', style: 'destructive', onPress: () => signOutChild() },
+    ]);
   };
 
   const totalSessions = child.totalSessions || 0;
-  const avgScore = child.averageScore || 0;
-  const level = Math.max(1, Math.floor(totalSessions / 3) + 1);
-  const xpProgress = (totalSessions % 3) / 3;
+  const avgScore      = child.averageScore || 0;
+  const level         = Math.max(1, Math.floor(totalSessions / 3) + 1);
+  const xpProgress    = (totalSessions % 3) / 3;
 
   return (
-    <LinearGradient
-      colors={['#1A1F3A', '#2D1B69', '#1A1F3A']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
-    >
-      {/* Background decoration */}
-      <View style={styles.decorCircle1} />
-      <View style={styles.decorCircle2} />
+    <View style={styles.root}>
+      <StatusBar barStyle="dark-content" backgroundColor={C.bg} />
 
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top bar with sign out */}
+        {/* ── TOP BAR ───────────────────────────────────────────────── */}
         <Animated.View style={[styles.topBar, { opacity: fadeAnim }]}>
           <View style={styles.codeTag}>
-            <Text style={styles.codeTagText}>🔑 Code : {child.childCode}</Text>
+            <Text style={styles.codeTagText}>🔑 {child.childCode}</Text>
           </View>
-          <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-            <Text style={styles.signOutText}>Quitter</Text>
+          <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
+            <Text style={styles.signOutTxt}>Quitter</Text>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Hero section */}
+        {/* ── HERO ──────────────────────────────────────────────────── */}
         <Animated.View
-          style={[
-            styles.heroSection,
-            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-          ]}
+          style={[styles.hero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
           <Animated.View
-            style={[
-              styles.avatarContainer,
-              { backgroundColor: child.avatarColor + '30' },
-              { transform: [{ scale: avatarPulse }] },
-            ]}
+            style={[styles.avatarWrap, { transform: [{ scale: avatarPulse }] }]}
           >
             <Text style={styles.avatarEmoji}>{child.avatarEmoji}</Text>
           </Animated.View>
-          <Text style={styles.welcomeText}>Salut, {child.firstName} ! 👋</Text>
-          <Text style={styles.welcomeSubtext}>Prêt pour une nouvelle aventure ?</Text>
-
-          {/* Level badge */}
+          <Text style={styles.welcome}>Salut, {child.firstName} ! 👋</Text>
+          <Text style={styles.welcomeSub}>Prêt(e) pour une nouvelle aventure ?</Text>
           <View style={styles.levelBadge}>
-            <Text style={styles.levelText}>⚡ Niveau {level}</Text>
+            <Text style={styles.levelTxt}>⚡ Niveau {level}</Text>
           </View>
         </Animated.View>
 
-        {/* XP Progress bar */}
-        <Animated.View style={[styles.xpCard, { opacity: fadeAnim }]}>
-          <View style={styles.xpHeader}>
-            <Text style={styles.xpTitle}>Progression vers le niveau {level + 1}</Text>
-            <Text style={styles.xpCount}>{totalSessions % 3}/3 parties</Text>
+        {/* ── XP BAR ────────────────────────────────────────────────── */}
+        <View style={styles.xpCard}>
+          <View style={styles.xpRow}>
+            <Text style={styles.xpTitle}>Progression → Niveau {level + 1}</Text>
+            <Text style={styles.xpCount}>{totalSessions % 3}/3</Text>
           </View>
-          <View style={styles.xpBarBg}>
-            <Animated.View
-              style={[
-                styles.xpBarFill,
-                { width: `${Math.round(xpProgress * 100)}%` as any },
-              ]}
-            />
+          <View style={styles.xpBg}>
+            <View style={[styles.xpFill, { width: `${Math.round(xpProgress * 100)}%` as any }]} />
           </View>
-        </Animated.View>
+        </View>
 
-        {/* Play button — main CTA */}
+        {/* ── JOUER ─────────────────────────────────────────────────── */}
         <TouchableOpacity
-          style={styles.playCard}
-          activeOpacity={0.9}
+          activeOpacity={0.88}
           onPress={() => navigation.navigate('GameSelection', { childId: child.id })}
         >
           <LinearGradient
-            colors={['#FF6B9D', '#FF8E53']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.playCardGradient}
+            colors={['#E84393', '#FF6B35']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={styles.playCard}
           >
             <Text style={styles.playEmoji}>🎮</Text>
-            <View>
+            <View style={styles.playText}>
               <Text style={styles.playTitle}>Jouer maintenant !</Text>
-              <Text style={styles.playSubtitle}>Choisis ton jeu et bats ton record</Text>
+              <Text style={styles.playSub}>Choisis ton jeu et bats ton record</Text>
             </View>
             <Text style={styles.playArrow}>→</Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Stats row */}
+        {/* ── STATS ─────────────────────────────────────────────────── */}
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { borderTopColor: C.blue }]}>
             <Text style={styles.statEmoji}>🎯</Text>
-            <Text style={styles.statValue}>{totalSessions}</Text>
-            <Text style={styles.statLabel}>Parties jouées</Text>
+            <Text style={[styles.statVal, { color: C.blue }]}>{totalSessions}</Text>
+            <Text style={styles.statLbl}>Parties jouées</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { borderTopColor: C.green }]}>
             <Text style={styles.statEmoji}>⭐</Text>
-            <Text style={styles.statValue}>
+            <Text style={[styles.statVal, { color: C.green }]}>
               {avgScore > 0 ? Math.round(avgScore) : '—'}
             </Text>
-            <Text style={styles.statLabel}>Meilleur score</Text>
+            <Text style={styles.statLbl}>Meilleur score</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { borderTopColor: C.orange }]}>
             <Text style={styles.statEmoji}>🏅</Text>
-            <Text style={styles.statValue}>{level}</Text>
-            <Text style={styles.statLabel}>Niveau actuel</Text>
+            <Text style={[styles.statVal, { color: C.orange }]}>{level}</Text>
+            <Text style={styles.statLbl}>Niveau actuel</Text>
           </View>
         </View>
 
-        {/* Badges */}
+        {/* ── BADGES ────────────────────────────────────────────────── */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🏆 Mes Récompenses</Text>
           <View style={styles.badgesGrid}>
             {BADGES.map((badge, i) => (
               <View
                 key={i}
-                style={[styles.badgeCard, !badge.unlocked && styles.badgeCardLocked]}
+                style={[
+                  styles.badgeCard,
+                  badge.unlocked
+                    ? { borderColor: badge.color + '55', backgroundColor: badge.color + '12' }
+                    : styles.badgeLocked,
+                ]}
               >
-                <Text style={[styles.badgeEmoji, !badge.unlocked && styles.badgeEmojiLocked]}>
+                <Text style={[styles.badgeEmoji, !badge.unlocked && { opacity: 0.25 }]}>
                   {badge.unlocked ? badge.emoji : '🔒'}
                 </Text>
-                <Text style={[styles.badgeName, !badge.unlocked && styles.badgeNameLocked]}>
+                <Text style={[styles.badgeName, !badge.unlocked && { color: '#BBB' }]}>
                   {badge.name}
                 </Text>
               </View>
@@ -220,222 +215,192 @@ export const ChildDashboardScreen: React.FC<Props> = ({ navigation, route }) => 
           </View>
         </View>
 
-        {/* Daily tip */}
+        {/* ── CONSEIL DU JOUR ───────────────────────────────────────── */}
         <View style={styles.tipCard}>
           <Text style={styles.tipIcon}>💡</Text>
-          <Text style={styles.tipText}>{randomTip}</Text>
+          <Text style={styles.tipTxt}>{randomTip}</Text>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1, overflow: 'hidden' },
-  decorCircle1: {
-    position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(255, 107, 157, 0.08)',
-    top: -80,
-    right: -80,
-  },
-  decorCircle2: {
-    position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(74, 124, 247, 0.07)',
-    bottom: 60,
-    left: -60,
-  },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1A1F3A',
-  },
-  errorText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.lg,
-    color: '#FF8080',
-    textAlign: 'center',
-  },
+  root: { flex: 1, backgroundColor: C.bg },
+  errorWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: C.bg },
+  errorTxt: { fontFamily: FontFamily.bold, fontSize: FontSize.lg, color: '#E84393' },
+
   scroll: {
     paddingTop: 54,
     paddingHorizontal: Spacing[5],
     paddingBottom: Spacing[12],
-    gap: Spacing[5],
+    gap: Spacing[4],
   },
+
+  // TOP BAR
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   codeTag: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: C.blueBg,
     paddingHorizontal: Spacing[3],
     paddingVertical: Spacing[1.5],
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: C.border,
   },
   codeTagText: {
-    fontFamily: FontFamily.semiBold,
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.sm,
-    color: 'rgba(255,255,255,0.75)',
+    color: C.blue,
   },
-  signOutButton: {
-    backgroundColor: 'rgba(255, 80, 80, 0.15)',
+  signOutBtn: {
+    backgroundColor: '#FEE8EE',
     paddingHorizontal: Spacing[3],
     paddingVertical: Spacing[1.5],
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(255,80,80,0.3)',
+    borderColor: '#F5C0CB',
   },
-  signOutText: {
+  signOutTxt: {
     fontFamily: FontFamily.semiBold,
     fontSize: FontSize.sm,
-    color: '#FF8080',
+    color: '#E84393',
   },
-  heroSection: {
+
+  // HERO
+  hero: {
     alignItems: 'center',
+    paddingVertical: Spacing[4],
     gap: Spacing[2],
-    paddingTop: Spacing[3],
   },
-  avatarContainer: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
+  avatarWrap: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: C.blueBg,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing[2],
     borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.2)',
-    ...Shadows.lg,
+    borderColor: C.border,
+    marginBottom: Spacing[2],
+    ...Shadows.base,
   },
-  avatarEmoji: { fontSize: 56 },
-  welcomeText: {
+  avatarEmoji: { fontSize: 52 },
+  welcome: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize['2xl'],
-    color: '#FFFFFF',
+    color: C.text,
     letterSpacing: -0.3,
   },
-  welcomeSubtext: {
+  welcomeSub: {
     fontFamily: FontFamily.regular,
     fontSize: FontSize.base,
-    color: 'rgba(255,255,255,0.6)',
+    color: C.textSoft,
   },
   levelBadge: {
-    backgroundColor: 'rgba(255, 200, 50, 0.2)',
+    backgroundColor: C.orangeBg,
     borderWidth: 1,
-    borderColor: 'rgba(255, 200, 50, 0.5)',
+    borderColor: C.orange + '55',
     paddingHorizontal: Spacing[4],
     paddingVertical: Spacing[1.5],
     borderRadius: BorderRadius.full,
     marginTop: Spacing[1],
   },
-  levelText: {
+  levelTxt: {
     fontFamily: FontFamily.bold,
     fontSize: FontSize.sm,
-    color: '#FFD700',
+    color: C.orange,
   },
+
+  // XP BAR
   xpCard: {
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: C.card,
     borderRadius: BorderRadius.xl,
     padding: Spacing[4],
     gap: Spacing[2],
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: C.border,
+    ...Shadows.sm,
   },
-  xpHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  xpTitle: {
-    fontFamily: FontFamily.semiBold,
-    fontSize: FontSize.sm,
-    color: 'rgba(255,255,255,0.7)',
-  },
-  xpCount: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: '#FF6B9D',
-  },
-  xpBarBg: {
+  xpRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  xpTitle: { fontFamily: FontFamily.semiBold, fontSize: FontSize.sm, color: C.textSoft },
+  xpCount:  { fontFamily: FontFamily.bold,    fontSize: FontSize.sm, color: C.blue },
+  xpBg: {
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: C.blueBg,
     overflow: 'hidden',
   },
-  xpBarFill: {
+  xpFill: {
     height: '100%',
     borderRadius: 5,
-    backgroundColor: '#FF6B9D',
+    backgroundColor: C.blue,
   },
+
+  // PLAY CARD
   playCard: {
     borderRadius: BorderRadius['2xl'],
-    overflow: 'hidden',
-    ...Shadows.lg,
-  },
-  playCardGradient: {
+    padding: Spacing[5],
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing[5],
     gap: Spacing[4],
+    ...Shadows.md,
   },
-  playEmoji: { fontSize: 44 },
+  playEmoji: { fontSize: 42 },
+  playText: { flex: 1 },
   playTitle: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize.xl,
     color: '#FFFFFF',
   },
-  playSubtitle: {
+  playSub: {
     fontFamily: FontFamily.regular,
     fontSize: FontSize.sm,
     color: 'rgba(255,255,255,0.85)',
     marginTop: 2,
   },
   playArrow: {
-    marginLeft: 'auto',
-    fontSize: 28,
+    fontSize: 26,
     color: '#FFFFFF',
     fontFamily: FontFamily.bold,
   },
-  statsRow: {
-    flexDirection: 'row',
-    gap: Spacing[3],
-  },
+
+  // STATS
+  statsRow: { flexDirection: 'row', gap: Spacing[3] },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: C.card,
     borderRadius: BorderRadius.xl,
     padding: Spacing[4],
     alignItems: 'center',
     gap: Spacing[1],
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: C.border,
+    borderTopWidth: 3,
+    ...Shadows.sm,
   },
-  statEmoji: { fontSize: 28 },
-  statValue: {
+  statEmoji: { fontSize: 26 },
+  statVal: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize.xl,
-    color: '#FFFFFF',
   },
-  statLabel: {
+  statLbl: {
     fontFamily: FontFamily.regular,
     fontSize: 10,
-    color: 'rgba(255,255,255,0.5)',
+    color: C.textSoft,
     textAlign: 'center',
   },
+
+  // BADGES
   section: { gap: Spacing[3] },
   sectionTitle: {
     fontFamily: FontFamily.bold,
     fontSize: FontSize.base,
-    color: '#FFFFFF',
-    paddingLeft: 4,
+    color: C.text,
+    paddingLeft: 2,
   },
   badgesGrid: {
     flexDirection: 'row',
@@ -444,43 +409,42 @@ const styles = StyleSheet.create({
   },
   badgeCard: {
     width: '30%',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: C.card,
     borderRadius: BorderRadius.xl,
     padding: Spacing[3],
     alignItems: 'center',
     gap: Spacing[1],
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1.5,
   },
-  badgeCardLocked: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderColor: 'rgba(255,255,255,0.06)',
+  badgeLocked: {
+    backgroundColor: '#F5F5F5',
+    borderColor: '#E0E0E0',
   },
-  badgeEmoji: { fontSize: 30 },
-  badgeEmojiLocked: { opacity: 0.3 },
+  badgeEmoji: { fontSize: 28 },
   badgeName: {
     fontFamily: FontFamily.semiBold,
     fontSize: 10,
-    color: '#FFFFFF',
+    color: C.text,
     textAlign: 'center',
   },
-  badgeNameLocked: { color: 'rgba(255,255,255,0.3)' },
+
+  // TIP
   tipCard: {
-    backgroundColor: 'rgba(74, 124, 247, 0.15)',
-    borderRadius: BorderRadius.xl,
-    padding: Spacing[4],
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: C.greenBg,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing[4],
     gap: Spacing[3],
     borderWidth: 1,
-    borderColor: 'rgba(74, 124, 247, 0.3)',
+    borderColor: C.green + '44',
   },
-  tipIcon: { fontSize: 28 },
-  tipText: {
+  tipIcon: { fontSize: 26 },
+  tipTxt: {
     flex: 1,
     fontFamily: FontFamily.medium,
     fontSize: FontSize.sm,
-    color: 'rgba(255,255,255,0.75)',
+    color: '#1B5E35',
     lineHeight: 20,
   },
 });

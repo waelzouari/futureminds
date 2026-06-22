@@ -12,8 +12,8 @@ const GAME_HTML_TEMPLATE = `
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; }
     body {
-      background: #0B0C1E;
-      color: white;
+      background: #F0F6FF;
+      color: #1A2340;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
@@ -33,46 +33,54 @@ const GAME_HTML_TEMPLATE = `
     }
     .hud {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      right: 20px;
+      top: 16px;
+      left: 16px;
+      right: 16px;
       display: flex;
       justify-content: space-between;
-      font-size: 18px;
-      font-weight: bold;
       z-index: 10;
-      opacity: 0.85;
+    }
+    .hud > div {
+      background: #FFFFFF;
+      border: 1.5px solid #DDE8FF;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A2340;
+      box-shadow: 0 2px 8px rgba(74,144,226,0.1);
     }
     .message {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: bold;
       text-align: center;
       padding: 20px;
+      color: #1A2340;
       z-index: 5;
     }
     .submessage {
-      font-size: 16px;
-      opacity: 0.7;
+      font-size: 15px;
+      color: #6B7A99;
       margin-top: 10px;
       font-weight: normal;
     }
     #target {
       position: absolute;
-      width: 100px;
-      height: 100px;
-      background: radial-gradient(circle, #F59E0B 0%, #EF4444 100%);
+      width: 110px;
+      height: 110px;
+      background: radial-gradient(circle, #F5A623 0%, #E84393 100%);
       border-radius: 50%;
       display: none;
       align-items: center;
       justify-content: center;
-      font-size: 40px;
-      box-shadow: 0 0 20px rgba(245,158,11,0.6);
+      font-size: 42px;
+      box-shadow: 0 0 24px rgba(232,67,147,0.35), 0 4px 16px rgba(0,0,0,0.08);
       cursor: pointer;
       z-index: 20;
     }
     .feedback {
       position: absolute;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: bold;
       animation: floatUp 1s ease-out forwards;
       pointer-events: none;
@@ -88,6 +96,7 @@ const GAME_HTML_TEMPLATE = `
       opacity: 0;
       pointer-events: none;
       z-index: 100;
+      border-radius: 16px;
       transition: opacity 0.1s;
     }
   </style>

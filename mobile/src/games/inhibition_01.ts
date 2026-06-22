@@ -11,8 +11,8 @@ const INHIBITION_GAME_HTML = `
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; }
     body {
-      background: #0B0C1E;
-      color: white;
+      background: #F0F6FF;
+      color: #1A2340;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       height: 100vh;
       display: flex;
@@ -26,20 +26,24 @@ const INHIBITION_GAME_HTML = `
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px;
+      padding: 16px;
     }
     .hud-pill {
-      background: rgba(255,255,255,0.1);
+      background: #FFFFFF;
+      border: 1.5px solid #DDE8FF;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 14px;
       font-weight: 700;
+      color: #1A2340;
+      box-shadow: 0 2px 8px rgba(74,144,226,0.1);
     }
     .status {
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 700;
       margin-top: 20px;
       min-height: 24px;
+      color: #1A2340;
     }
     .game-area {
       flex: 1;
@@ -87,7 +91,7 @@ const INHIBITION_GAME_HTML = `
     #overlay {
       position: fixed;
       inset: 0;
-      background: rgba(11,12,30,0.95);
+      background: rgba(240,246,255,0.97);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -97,11 +101,12 @@ const INHIBITION_GAME_HTML = `
     }
     .ol-btn {
       margin-top: 8px;
-      background: linear-gradient(135deg, #34C78A, #4ECDC4);
+      background: linear-gradient(135deg, #27AE60, #4A90E2);
       color: white; border: none;
       padding: 14px 36px;
       border-radius: 50px;
       font-size: 17px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(39,174,96,0.3);
     }
   </style>
 </head>
@@ -118,8 +123,8 @@ const INHIBITION_GAME_HTML = `
 
   <div id="overlay">
     <div style="font-size: 64px;">🚦</div>
-    <div style="font-size: 26px; font-weight: 800;">Stop & Go</div>
-    <div style="font-size: 15px; opacity: 0.65; text-align: center; max-width: 280px; line-height: 1.5;">
+    <div style="font-size: 26px; font-weight: 800; color: #1A2340;">Stop &amp; Go</div>
+    <div style="font-size: 15px; color: #6B7A99; text-align: center; max-width: 280px; line-height: 1.5;">
       Appuie sur le 🟢 <b>vert (GO)</b> aussi vite que possible.<br><br>
       Mais ne touche pas au 🔴 <b>rouge (STOP)</b> !
     </div>

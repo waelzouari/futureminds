@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   Animated,
   SafeAreaView,
+  StatusBar,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/types';
 import { FontFamily, FontSize, Spacing, BorderRadius, Shadows } from '../../theme';
@@ -16,228 +16,258 @@ type Props = {
   navigation: NativeStackNavigationProp<AuthStackParamList, 'RoleSelection'>;
 };
 
+// Palette TDAH — claire, aérée, contrastes forts, chaque rôle distinct
+const C = {
+  bg:         '#F0F6FF',   // fond bleu pastel doux
+  card:       '#FFFFFF',   // cartes blanches
+  text:       '#1A2340',   // texte principal
+  textSoft:   '#6B7A99',   // texte secondaire
+
+  // Parent — bleu calme et professionnel
+  parentBg:   '#4A90E2',
+  parentLight:'#E8F2FF',
+  parentBorder:'#BDD5F7',
+
+  // Enfant — coral/orange chaud et ludique
+  childBg:    '#E84393',
+  childLight: '#FEE8F4',
+  childBorder:'#F5BCDA',
+
+  // Logo
+  logoBg:     '#EAF1FF',
+  logoBorder: '#C4D9F8',
+};
+
 export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
+  const fadeAnim   = useRef(new Animated.Value(0)).current;
+  const slideAnim  = useRef(new Animated.Value(30)).current;
   const parentScale = useRef(new Animated.Value(1)).current;
-  const childScale = useRef(new Animated.Value(1)).current;
+  const childScale  = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
     ]).start();
   }, []);
 
   const animatePress = (anim: Animated.Value, callback: () => void) => {
     Animated.sequence([
-      Animated.timing(anim, { toValue: 0.95, duration: 80, useNativeDriver: true }),
-      Animated.timing(anim, { toValue: 1, duration: 80, useNativeDriver: true }),
+      Animated.timing(anim, { toValue: 0.96, duration: 80, useNativeDriver: true }),
+      Animated.timing(anim, { toValue: 1,    duration: 80, useNativeDriver: true }),
     ]).start(() => callback());
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1F3A', '#2D1B69', '#1A1F3A']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
-    >
-      {/* Decorative circles */}
-      <View style={styles.decorCircle1} />
-      <View style={styles.decorCircle2} />
+    <View style={styles.root}>
+      <StatusBar barStyle="dark-content" backgroundColor={C.bg} />
+
+      {/* Décoration douce — cercles pastel en fond */}
+      <View style={styles.decoTop} />
+      <View style={styles.decoBottom} />
 
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
-          style={[
-            styles.content,
-            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-          ]}
+          style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
-          {/* Brand */}
+          {/* ── BRAND ────────────────────────────────────────────── */}
           <View style={styles.brandSection}>
-            <View style={styles.logoContainer}>
+            <View style={styles.logoWrap}>
               <Text style={styles.logoEmoji}>🧠</Text>
             </View>
             <Text style={styles.brandTitle}>FutureMinds</Text>
             <Text style={styles.brandSubtitle}>Qui es-tu aujourd'hui ?</Text>
           </View>
 
-          {/* Parent Card */}
+          {/* ── CARD PARENT ──────────────────────────────────────── */}
           <Animated.View style={{ transform: [{ scale: parentScale }] }}>
             <TouchableOpacity
               activeOpacity={1}
+              style={styles.parentCard}
               onPress={() => animatePress(parentScale, () => navigation.navigate('Login'))}
             >
-              <LinearGradient
-                colors={['#4A7CF7', '#6B5CE7']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.roleCard}
-              >
-                <View style={styles.roleCardLeft}>
-                  <View style={styles.roleIconContainer}>
-                    <Text style={styles.roleIcon}>👨‍👩‍👧</Text>
-                  </View>
-                  <View style={styles.roleCardText}>
-                    <Text style={styles.roleTitle}>Parent</Text>
-                    <Text style={styles.roleDescription}>
-                      Gérez les profils et consultez les progrès
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.roleArrow}>›</Text>
-              </LinearGradient>
+              <View style={styles.iconWrapParent}>
+                <Text style={styles.roleIcon}>👨‍👩‍👧</Text>
+              </View>
+              <View style={styles.cardText}>
+                <Text style={[styles.roleTitle, { color: C.parentBg }]}>Parent</Text>
+                <Text style={styles.roleDesc}>Gérez les profils et consultez les progrès</Text>
+              </View>
+              <View style={[styles.arrowWrap, { backgroundColor: C.parentLight }]}>
+                <Text style={[styles.arrow, { color: C.parentBg }]}>›</Text>
+              </View>
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Child Card */}
+          {/* ── CARD ENFANT ──────────────────────────────────────── */}
           <Animated.View style={{ transform: [{ scale: childScale }] }}>
             <TouchableOpacity
               activeOpacity={1}
+              style={styles.childCard}
               onPress={() => animatePress(childScale, () => navigation.navigate('ChildLogin'))}
             >
-              <LinearGradient
-                colors={['#FF6B9D', '#FF8E53']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.roleCard}
-              >
-                <View style={styles.roleCardLeft}>
-                  <View style={styles.roleIconContainer}>
-                    <Text style={styles.roleIcon}>🧒</Text>
-                  </View>
-                  <View style={styles.roleCardText}>
-                    <Text style={styles.roleTitle}>Enfant</Text>
-                    <Text style={styles.roleDescription}>
-                      Accède à tes jeux avec ton code secret
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.roleArrow}>›</Text>
-              </LinearGradient>
+              <View style={styles.iconWrapChild}>
+                <Text style={styles.roleIcon}>🧒</Text>
+              </View>
+              <View style={styles.cardText}>
+                <Text style={[styles.roleTitle, { color: C.childBg }]}>Enfant</Text>
+                <Text style={styles.roleDesc}>Accède à tes jeux avec ton code secret</Text>
+              </View>
+              <View style={[styles.arrowWrap, { backgroundColor: C.childLight }]}>
+                <Text style={[styles.arrow, { color: C.childBg }]}>›</Text>
+              </View>
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Footer */}
-          <Text style={styles.footerText}>
-            Application éducative pour enfants
-          </Text>
+          {/* ── FOOTER ───────────────────────────────────────────── */}
+          <Text style={styles.footer}>Application éducative pour enfants</Text>
         </Animated.View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gradient: {
+  root: {
     flex: 1,
+    backgroundColor: C.bg,
   },
-  safeArea: {
-    flex: 1,
-  },
-  decorCircle1: {
+
+  // Décoration pastel subtile
+  decoTop: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(74, 124, 247, 0.12)',
-    top: -80,
-    right: -80,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: '#D6E8FF',   // bleu très pâle
+    top: -120,
+    right: -100,
+    opacity: 0.7,
   },
-  decorCircle2: {
+  decoBottom: {
     position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255, 107, 157, 0.10)',
-    bottom: 60,
-    left: -60,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: '#FFE0F0',   // rose très pâle
+    bottom: 20,
+    left: -80,
+    opacity: 0.6,
   },
+
+  safeArea: { flex: 1 },
   content: {
     flex: 1,
     paddingHorizontal: Spacing[5],
-    paddingTop: Spacing[10],
-    paddingBottom: Spacing[6],
     justifyContent: 'center',
     gap: Spacing[4],
   },
+
+  // BRAND
   brandSection: {
     alignItems: 'center',
-    marginBottom: Spacing[4],
+    marginBottom: Spacing[6],
+    gap: Spacing[2],
   },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+  logoWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: C.logoBg,
+    borderWidth: 2,
+    borderColor: C.logoBorder,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing[3],
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    marginBottom: Spacing[2],
+    ...Shadows.sm,
   },
-  logoEmoji: { fontSize: 40 },
+  logoEmoji: { fontSize: 44 },
   brandTitle: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize['3xl'],
-    color: '#FFFFFF',
+    color: C.text,
     letterSpacing: -0.5,
   },
   brandSubtitle: {
     fontFamily: FontFamily.medium,
-    fontSize: FontSize.md,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: Spacing[1],
+    fontSize: FontSize.base,
+    color: C.textSoft,
   },
-  roleCard: {
+
+  // CARTES
+  parentCard: {
+    backgroundColor: C.card,
     borderRadius: BorderRadius['2xl'],
     padding: Spacing[5],
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    ...Shadows.lg,
+    gap: Spacing[4],
+    borderWidth: 2,
+    borderColor: C.parentBorder,
+    ...Shadows.base,
   },
-  roleCardLeft: {
+  childCard: {
+    backgroundColor: C.card,
+    borderRadius: BorderRadius['2xl'],
+    padding: Spacing[5],
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing[4],
-    flex: 1,
+    borderWidth: 2,
+    borderColor: C.childBorder,
+    ...Shadows.base,
   },
-  roleCardText: {
-    flex: 1,
-  },
-  roleIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+  iconWrapParent: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: C.parentLight,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: C.parentBorder,
   },
-  roleIcon: { fontSize: 28 },
+  iconWrapChild: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: C.childLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: C.childBorder,
+  },
+  roleIcon: { fontSize: 30 },
+  cardText: { flex: 1 },
   roleTitle: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize.xl,
-    color: '#FFFFFF',
-    marginBottom: 2,
+    marginBottom: 3,
   },
-  roleDescription: {
+  roleDesc: {
     fontFamily: FontFamily.regular,
     fontSize: FontSize.sm,
-    color: 'rgba(255,255,255,0.80)',
+    color: C.textSoft,
     lineHeight: 18,
   },
-  roleArrow: {
-    fontSize: 32,
-    color: 'rgba(255,255,255,0.7)',
-    fontFamily: FontFamily.bold,
-    marginLeft: Spacing[2],
+  arrowWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  footerText: {
+  arrow: {
+    fontSize: 24,
+    fontFamily: FontFamily.bold,
+    lineHeight: 28,
+  },
+
+  // FOOTER
+  footer: {
     fontFamily: FontFamily.regular,
     fontSize: FontSize.xs,
-    color: 'rgba(255,255,255,0.3)',
+    color: C.textSoft,
     textAlign: 'center',
     marginTop: Spacing[4],
   },

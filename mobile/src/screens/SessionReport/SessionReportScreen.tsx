@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -107,29 +108,21 @@ export const SessionReportScreen: React.FC<Props> = ({ navigation, route }) => {
     const starRow = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
 
     const getMessage = () => {
-      if (score >= 80) return { emoji: '🏆', text: 'Incroyable ! Tu es un champion !', color: '#FFD700' };
-      if (score >= 50) return { emoji: '🎉', text: 'Bien joué ! Continue comme ça !', color: '#FF6B9D' };
-      return { emoji: '💪', text: 'Bonne tentative ! Réessaie pour t\'améliorer !', color: '#4A7CF7' };
+      if (score >= 80) return { emoji: '🏆', text: 'Incroyable ! Tu es un champion !', color: '#F5A623' };
+      if (score >= 50) return { emoji: '🎉', text: 'Bien joué ! Continue comme ça !',  color: '#4A90E2' };
+      return           { emoji: '💪', text: 'Bravo d\'avoir essayé ! Réessaie !',       color: '#27AE60' };
     };
 
     const msg = getMessage();
 
     return (
-      <LinearGradient
-        colors={['#1A1F3A', '#2D1B69', '#1A1F3A']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.childGradient}
-      >
-        {/* Déco */}
-        <View style={styles.decorCircle1} />
-        <View style={styles.decorCircle2} />
-
+      <View style={styles.childRoot}>
+        <StatusBar barStyle="dark-content" backgroundColor="#F0F6FF" />
         <ScrollView
           contentContainerStyle={styles.childScroll}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header enfant */}
+          {/* Header */}
           <View style={styles.childHeader}>
             <Text style={styles.childHeaderTitle}>{game?.title || 'Mini-Jeu'}</Text>
           </View>
@@ -143,33 +136,24 @@ export const SessionReportScreen: React.FC<Props> = ({ navigation, route }) => {
             <Text style={styles.childMessage}>{msg.text}</Text>
           </View>
 
-          {/* Stats simples */}
+          {/* Stats */}
           <View style={styles.childStatsRow}>
-            <View style={styles.childStatCard}>
+            <View style={[styles.childStatCard, { borderTopColor: '#4A90E2' }]}>
               <Text style={styles.childStatEmoji}>⏱️</Text>
-              <Text style={styles.childStatValue}>{Math.round(session.duration)}s</Text>
+              <Text style={[styles.childStatValue, { color: '#4A90E2' }]}>
+                {session.durationSeconds ? `${Math.round(session.durationSeconds)}s` : '—'}
+              </Text>
               <Text style={styles.childStatLabel}>Durée</Text>
             </View>
-            <View style={styles.childStatCard}>
+            <View style={[styles.childStatCard, { borderTopColor: '#27AE60' }]}>
               <Text style={styles.childStatEmoji}>🎯</Text>
-              <Text style={styles.childStatValue}>{session.correctAnswers ?? '—'}</Text>
+              <Text style={[styles.childStatValue, { color: '#27AE60' }]}>{session.correctAnswers ?? '—'}</Text>
               <Text style={styles.childStatLabel}>Bonnes réponses</Text>
             </View>
-            <View style={styles.childStatCard}>
+            <View style={[styles.childStatCard, { borderTopColor: '#F5A623' }]}>
               <Text style={styles.childStatEmoji}>🔥</Text>
-              <Text style={styles.childStatValue}>{session.difficultyLevel}</Text>
+              <Text style={[styles.childStatValue, { color: '#F5A623' }]}>{session.difficultyLevel}</Text>
               <Text style={styles.childStatLabel}>Niveau</Text>
-            </View>
-          </View>
-
-          {/* Notice rapport parent */}
-          <View style={styles.parentNoticeCard}>
-            <Text style={styles.parentNoticeIcon}>📋</Text>
-            <View style={styles.parentNoticeText}>
-              <Text style={styles.parentNoticeTitle}>Rapport envoyé à ton parent</Text>
-              <Text style={styles.parentNoticeDesc}>
-                Tes parents pourront consulter ton analyse détaillée depuis leur espace.
-              </Text>
             </View>
           </View>
 
@@ -186,14 +170,7 @@ export const SessionReportScreen: React.FC<Props> = ({ navigation, route }) => {
                 })
               }
             >
-              <LinearGradient
-                colors={['#FF6B9D', '#FF8E53']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.childPlayAgainGradient}
-              >
-                <Text style={styles.childPlayAgainText}>🎮  Rejouer</Text>
-              </LinearGradient>
+              <Text style={styles.childPlayAgainText}>🎮  Rejouer</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -204,7 +181,7 @@ export const SessionReportScreen: React.FC<Props> = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -324,17 +301,6 @@ export const SessionReportScreen: React.FC<Props> = ({ navigation, route }) => {
             title="Retour au Dashboard"
             onPress={() => navigation.navigate('ParentTabs')}
           />
-          <SecondaryButton
-            title="Rejouer"
-            onPress={() =>
-              navigation.replace('UnityGame', {
-                gameId,
-                childId,
-                sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                difficultyLevel: session.difficultyLevel,
-              })
-            }
-          />
         </View>
       </ScrollView>
     </View>
@@ -358,25 +324,7 @@ const styles = StyleSheet.create({
   },
 
   // ── Vue Enfant ───────────────────────────────────────────────────────────────
-  childGradient: { flex: 1, overflow: 'hidden' },
-  decorCircle1: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(255,107,157,0.09)',
-    top: -60,
-    right: -80,
-  },
-  decorCircle2: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(74,124,247,0.07)',
-    bottom: 60,
-    left: -60,
-  },
+  childRoot: { flex: 1, backgroundColor: '#F0F6FF' },
   childScroll: {
     paddingTop: 60,
     paddingHorizontal: Spacing[5],
@@ -387,7 +335,7 @@ const styles = StyleSheet.create({
   childHeaderTitle: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize['2xl'],
-    color: '#FFFFFF',
+    color: '#1A2340',
     letterSpacing: -0.3,
   },
   childHero: {
@@ -404,7 +352,7 @@ const styles = StyleSheet.create({
   childScoreLabel: {
     fontFamily: FontFamily.medium,
     fontSize: FontSize.lg,
-    color: 'rgba(255,255,255,0.55)',
+    color: '#6B7A99',
     marginTop: -Spacing[2],
   },
   childStars: {
@@ -415,7 +363,7 @@ const styles = StyleSheet.create({
   childMessage: {
     fontFamily: FontFamily.bold,
     fontSize: FontSize.lg,
-    color: '#FFFFFF',
+    color: '#1A2340',
     textAlign: 'center',
     marginTop: Spacing[2],
     paddingHorizontal: Spacing[4],
@@ -426,24 +374,26 @@ const styles = StyleSheet.create({
   },
   childStatCard: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.xl,
     padding: Spacing[4],
     alignItems: 'center',
     gap: Spacing[1],
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderTopWidth: 3,
+    borderColor: '#DDE8FF',
+    ...Shadows.sm,
   },
   childStatEmoji: { fontSize: 26 },
   childStatValue: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize.xl,
-    color: '#FFFFFF',
+    color: '#1A2340',
   },
   childStatLabel: {
     fontFamily: FontFamily.regular,
     fontSize: 10,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#6B7A99',
     textAlign: 'center',
   },
   parentNoticeCard: {
@@ -471,13 +421,11 @@ const styles = StyleSheet.create({
   },
   childCtaContainer: { gap: Spacing[3], marginTop: Spacing[2] },
   childPlayAgainBtn: {
+    backgroundColor: '#E84393',
     borderRadius: BorderRadius['2xl'],
-    overflow: 'hidden',
-    ...Shadows.lg,
-  },
-  childPlayAgainGradient: {
     paddingVertical: Spacing[4],
     alignItems: 'center',
+    ...Shadows.md,
   },
   childPlayAgainText: {
     fontFamily: FontFamily.bold,
@@ -485,17 +433,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   childHomeBtn: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: '#E8F2FF',
     borderRadius: BorderRadius['2xl'],
     paddingVertical: Spacing[4],
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1.5,
+    borderColor: '#DDE8FF',
   },
   childHomeBtnText: {
     fontFamily: FontFamily.semiBold,
     fontSize: FontSize.base,
-    color: 'rgba(255,255,255,0.8)',
+    color: '#4A90E2',
   },
 
   // ── Vue Parent ───────────────────────────────────────────────────────────────

@@ -11,8 +11,8 @@ const MEMORY_GAME_HTML = `
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; }
     body {
-      background: #0B0C1E;
-      color: white;
+      background: #F0F6FF;
+      color: #1A2340;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       height: 100vh;
       display: flex;
@@ -28,14 +28,17 @@ const MEMORY_GAME_HTML = `
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 20px 0;
+      padding: 16px 16px 0;
     }
     .hud-pill {
-      background: rgba(255,255,255,0.1);
+      background: #FFFFFF;
+      border: 1.5px solid #DDE8FF;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 14px;
       font-weight: 700;
+      color: #1A2340;
+      box-shadow: 0 2px 8px rgba(74,144,226,0.1);
     }
     #status {
       font-size: 17px;
@@ -43,6 +46,7 @@ const MEMORY_GAME_HTML = `
       text-align: center;
       padding: 10px 20px;
       min-height: 48px;
+      color: #1A2340;
     }
     #grid {
       display: grid;
@@ -83,22 +87,22 @@ const MEMORY_GAME_HTML = `
     .progress-bar {
       width: 100%;
       max-width: 340px;
-      height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
+      height: 8px;
+      background: #DDE8FF;
+      border-radius: 4px;
       overflow: hidden;
       margin: 0 24px;
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #7C6FCD, #A78BFA);
-      border-radius: 3px;
+      background: linear-gradient(90deg, #4A90E2, #27AE60);
+      border-radius: 4px;
       transition: width 0.3s ease;
     }
     #overlay {
       position: fixed;
       inset: 0;
-      background: rgba(11,12,30,0.95);
+      background: rgba(240,246,255,0.97);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -107,15 +111,16 @@ const MEMORY_GAME_HTML = `
       z-index: 20;
     }
     .ol-icon { font-size: 64px; }
-    .ol-title { font-size: 26px; font-weight: 800; }
-    .ol-sub { font-size: 15px; opacity: 0.65; text-align: center; max-width: 280px; line-height: 1.5; }
+    .ol-title { font-size: 26px; font-weight: 800; color: #1A2340; }
+    .ol-sub { font-size: 15px; color: #6B7A99; text-align: center; max-width: 280px; line-height: 1.5; }
     .ol-btn {
       margin-top: 8px;
-      background: linear-gradient(135deg, #7C6FCD, #A78BFA);
+      background: linear-gradient(135deg, #4A90E2, #27AE60);
       color: white; border: none;
       padding: 14px 36px;
       border-radius: 50px;
       font-size: 17px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(74,144,226,0.3);
     }
   </style>
 </head>

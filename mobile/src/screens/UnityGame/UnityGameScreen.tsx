@@ -190,10 +190,7 @@ export const UnityGameScreen: React.FC<Props> = ({ navigation, route }) => {
           )}
 
           {isProcessing && (
-            <View style={styles.processingConsole}>
-              <Text style={styles.processingText}>Analyse IA & synchronisation...</Text>
-              <Text style={styles.processingDesc}>Calcul des tendances cognitives sans poser de diagnostic médical.</Text>
-            </View>
+            <View style={styles.processingConsole} />
           )}
         </View>
 
@@ -209,36 +206,51 @@ export const UnityGameScreen: React.FC<Props> = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0B0C1E' },
-  gameView: { flex: 1, justifyContent: 'space-between', padding: Spacing[4] },
+  container: { flex: 1, backgroundColor: '#F0F6FF' },
+  gameView: { flex: 1, justifyContent: 'space-between', paddingHorizontal: Spacing[4], paddingTop: Spacing[2] },
   gameHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Spacing[2],
+    paddingVertical: Spacing[3],
+    paddingHorizontal: Spacing[1],
   },
   quitBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#FFE8EE',
     paddingHorizontal: Spacing[3],
     paddingVertical: Spacing[2],
     borderRadius: BorderRadius.full,
+    borderWidth: 1.5,
+    borderColor: '#F5BCDA',
   },
-  quitText: { color: '#FFF', fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },
-  gameNameHeader: { color: '#FFF', fontFamily: FontFamily.bold, fontSize: FontSize.base },
-  levelHeader: { color: Colors.accent, fontFamily: FontFamily.bold, fontSize: FontSize.sm },
+  quitText: { color: '#E84393', fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },
+  gameNameHeader: { color: '#1A2340', fontFamily: FontFamily.bold, fontSize: FontSize.base },
+  levelHeader: {
+    color: '#FFFFFF',
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.sm,
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: Spacing[3],
+    paddingVertical: Spacing[1],
+    borderRadius: BorderRadius.full,
+  },
   simulatorBody: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'stretch',
     gap: Spacing[6],
   },
-  gameIconBig: { fontSize: 80, textAlign: 'center', textShadowColor: 'rgba(255, 255, 255, 0.3)', textShadowOffset: { width: 0, height: 4 }, textShadowRadius: 10 },
-  webViewContainer: { flex: 1, borderRadius: BorderRadius.xl, overflow: 'hidden', backgroundColor: '#0B0C1E' },
+  gameIconBig: { fontSize: 80, textAlign: 'center' },
+  webViewContainer: { flex: 1, borderRadius: BorderRadius.xl, overflow: 'hidden', backgroundColor: '#F0F6FF' },
   webView: { flex: 1, backgroundColor: 'transparent' },
   processingConsole: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing[5], gap: 8 },
-  processingText: { color: Colors.accent, fontFamily: FontFamily.bold, fontSize: FontSize.md },
-  processingDesc: { color: 'rgba(255, 255, 255, 0.5)', fontFamily: FontFamily.regular, fontSize: FontSize.xs, textAlign: 'center', lineHeight: 16 },
-  simFooter: { paddingVertical: Spacing[2], borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.1)' },
-  footerDisclaimer: { color: 'rgba(255, 255, 255, 0.3)', fontSize: 10, fontFamily: FontFamily.regular, textAlign: 'center' },
-  errorText: { color: Colors.error, fontSize: FontSize.md, fontFamily: FontFamily.bold, textAlign: 'center', marginTop: 100 },
+  processingText: { color: '#4A90E2', fontFamily: FontFamily.bold, fontSize: FontSize.md },
+  processingDesc: { color: '#6B7A99', fontFamily: FontFamily.regular, fontSize: FontSize.xs, textAlign: 'center', lineHeight: 16 },
+  simFooter: {
+    paddingVertical: Spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: '#DDE8FF',
+  },
+  footerDisclaimer: { color: '#6B7A99', fontSize: 10, fontFamily: FontFamily.regular, textAlign: 'center' },
+  errorText: { color: '#E84393', fontSize: FontSize.md, fontFamily: FontFamily.bold, textAlign: 'center', marginTop: 100 },
 });

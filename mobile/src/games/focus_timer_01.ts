@@ -11,8 +11,8 @@ const FOCUS_GAME_HTML = `
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; }
     body {
-      background: #0B0C1E;
-      color: white;
+      background: #F0F6FF;
+      color: #1A2340;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       overflow: hidden;
       height: 100vh;
@@ -34,30 +34,31 @@ const FOCUS_GAME_HTML = `
     .timer {
       font-size: 48px;
       font-weight: 800;
-      color: #A78BFA;
+      color: #4A90E2;
       font-variant-numeric: tabular-nums;
     }
     .progress-bg {
       width: 200px; height: 8px;
-      background: rgba(255,255,255,0.1);
+      background: #DDE8FF;
       border-radius: 4px;
       margin-top: 10px;
       overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: #A78BFA;
+      background: #4A90E2;
       width: 0%;
     }
     .status {
       margin-top: 10px;
       font-size: 16px;
-      opacity: 0.8;
+      color: #6B7A99;
+      font-weight: 600;
     }
     #target {
       position: absolute;
       width: 120px; height: 120px;
-      background: radial-gradient(circle, rgba(167,139,250,0.8) 0%, rgba(124,111,205,0.4) 60%, transparent 100%);
+      background: radial-gradient(circle, rgba(74,144,226,0.7) 0%, rgba(39,174,96,0.3) 60%, transparent 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -68,13 +69,13 @@ const FOCUS_GAME_HTML = `
       transition: width 0.3s, height 0.3s;
     }
     #target.focused {
-      width: 140px; height: 140px;
-      background: radial-gradient(circle, rgba(167,139,250,1) 0%, rgba(124,111,205,0.6) 60%, transparent 100%);
+      width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(74,144,226,0.9) 0%, rgba(39,174,96,0.5) 60%, transparent 100%);
     }
     #overlay {
       position: fixed;
       inset: 0;
-      background: rgba(11,12,30,0.95);
+      background: rgba(240,246,255,0.97);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -84,11 +85,12 @@ const FOCUS_GAME_HTML = `
     }
     .ol-btn {
       margin-top: 8px;
-      background: linear-gradient(135deg, #A78BFA, #7C6FCD);
+      background: linear-gradient(135deg, #4A90E2, #27AE60);
       color: white; border: none;
       padding: 14px 36px;
       border-radius: 50px;
       font-size: 17px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(74,144,226,0.3);
     }
   </style>
 </head>
@@ -105,8 +107,8 @@ const FOCUS_GAME_HTML = `
 
   <div id="overlay">
     <div style="font-size: 64px;">🎯</div>
-    <div style="font-size: 26px; font-weight: 800;">Concentration Zen</div>
-    <div style="font-size: 15px; opacity: 0.65; text-align: center; max-width: 280px; line-height: 1.5;">
+    <div style="font-size: 26px; font-weight: 800; color: #1A2340;">Concentration Zen</div>
+    <div style="font-size: 15px; color: #6B7A99; text-align: center; max-width: 280px; line-height: 1.5;">
       Maintiens ton doigt sur la fleur de lotus et suis-la lentement sans relâcher, jusqu'à la fin du temps.
     </div>
     <button class="ol-btn" id="startBtn">Commencer</button>
@@ -184,7 +186,7 @@ const FOCUS_GAME_HTML = `
         timerEl.innerText = (focusTimeMs / 1000).toFixed(1) + 's';
         targetEl.classList.add('focused');
         statusEl.innerText = "Parfait, reste concentré...";
-        statusEl.style.color = "#A78BFA";
+        statusEl.style.color = "#27AE60";
       } else {
         targetEl.classList.remove('focused');
         statusEl.innerText = "Replace ton doigt sur le lotus !";
