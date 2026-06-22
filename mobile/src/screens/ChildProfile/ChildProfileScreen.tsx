@@ -93,10 +93,6 @@ export const ChildProfileScreen: React.FC<Props> = ({ navigation, route }) => {
     );
   };
 
-  const handleStartPlay = () => {
-    selectChild(child);
-    navigation.navigate('ChildTabs', { childId: child.id });
-  };
 
   return (
     <View style={styles.container}>
@@ -125,11 +121,20 @@ export const ChildProfileScreen: React.FC<Props> = ({ navigation, route }) => {
             {child.age} ans · Niveau {child.schoolLevel.toUpperCase()}
           </Text>
 
-          <PrimaryButton
-            title="Accéder à l'espace enfant (Jouer)"
-            onPress={handleStartPlay}
-            style={styles.playButton}
-          />
+          {/* Code de connexion enfant */}
+          {child.childCode && (
+            <View style={styles.codeCard}>
+              <Text style={styles.codeLabel}>Code de connexion enfant</Text>
+              <View style={styles.codeRow}>
+                {child.childCode.split('').map((digit, i) => (
+                  <View key={i} style={styles.codeDigitBox}>
+                    <Text style={styles.codeDigit}>{digit}</Text>
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.codeHint}>L'enfant utilise ce code pour se connecter à son espace</Text>
+            </View>
+          )}
         </View>
 
         {/* Observed difficulties */}
@@ -336,9 +341,49 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: FontSize.base,
     color: Colors.textSecondary,
-    marginBottom: Spacing[5],
+    marginBottom: Spacing[4],
   },
-  playButton: { width: '100%' },
+  codeCard: {
+    width: '100%',
+    backgroundColor: Colors.primaryLight,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing[4],
+    alignItems: 'center',
+    gap: Spacing[2],
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  codeLabel: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: FontSize.xs,
+    color: Colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  codeRow: {
+    flexDirection: 'row',
+    gap: Spacing[2],
+  },
+  codeDigitBox: {
+    width: 44,
+    height: 52,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.primary,
+  },
+  codeDigit: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize['2xl'],
+    color: '#FFFFFF',
+  },
+  codeHint: {
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    textAlign: 'center',
+  },
   section: { gap: Spacing[3] },
   sectionTitle: {
     fontFamily: FontFamily.bold,

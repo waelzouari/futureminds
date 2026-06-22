@@ -29,17 +29,19 @@ const SPATIAL_GAME_HTML = `
       pointer-events: none;
     }
     .hud-pill {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(8px);
+      background: #FFFFFF;
+      border: 1.5px solid #DDE8FF;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 14px;
       font-weight: 700;
+      color: #1A2340;
+      box-shadow: 0 2px 8px rgba(74,144,226,0.1);
     }
     #overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(240,246,255,0.97);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -50,11 +52,12 @@ const SPATIAL_GAME_HTML = `
     .ol-icon { font-size: 64px; }
     .ol-btn {
       margin-top: 8px;
-      background: linear-gradient(135deg, #4ECDC4, #4A7CF7);
+      background: linear-gradient(135deg, #4A90E2, #E84393);
       color: white; border: none;
       padding: 14px 36px;
       border-radius: 50px;
       font-size: 17px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(74,144,226,0.3);
     }
     .controls {
       position: fixed;
@@ -65,16 +68,17 @@ const SPATIAL_GAME_HTML = `
     }
     .ctrl-btn {
       width: 80px; height: 80px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(74,144,226,0.15);
       border-radius: 40px;
+      border: 2px solid #DDE8FF;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 32px;
+      color: #4A90E2;
       pointer-events: auto;
-      backdrop-filter: blur(4px);
     }
-    .ctrl-btn:active { background: rgba(255,255,255,0.3); }
+    .ctrl-btn:active { background: rgba(74,144,226,0.3); }
   </style>
 </head>
 <body>
@@ -92,8 +96,8 @@ const SPATIAL_GAME_HTML = `
 
   <div id="overlay">
     <div class="ol-icon">🌐</div>
-    <div style="font-size: 26px; font-weight: 800;">Parcours 3D</div>
-    <div style="font-size: 15px; opacity: 0.65; text-align: center; max-width: 280px; line-height: 1.5;">
+    <div style="font-size: 26px; font-weight: 800; color: #1A2340;">Parcours 3D</div>
+    <div style="font-size: 15px; color: #6B7A99; text-align: center; max-width: 280px; line-height: 1.5;">
       Utilise les flèches pour esquiver les blocs rouges 🟥 et attraper les cibles bleues 🟦.
     </div>
     <button class="ol-btn" id="startBtn">Décollage !</button>

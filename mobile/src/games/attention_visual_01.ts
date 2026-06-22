@@ -261,13 +261,36 @@ const ATTENTION_GAME_HTML = `
       }
     }
 
-    canvas.addEventListener('touchstart', handleClick);
-    canvas.addEventListener('mousedown', handleClick);
+    var lastClickTime = 0;
+
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault(); // bloque le mousedown synthétique qui suit
+      handleClick(e);
+    }, { passive: false });
+
+    canvas.addEventListener('mousedown', function(e) {
+      // Ignorer si un touch vient d'être traité (< 300ms)
+      if (Date.now() - lastClickTime < 300) return;
+      handleClick(e);
+    });
 
     function handleClick(e) {
+      // Debounce : éviter double-traitement
+      var now = Date.now();
+      if (now - lastClickTime < 200) return;
+      lastClickTime = now;
+
       var cx, cy;
-      if (e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
-      else { cx = e.clientX; cy = e.clientY; }
+      if (e.touches && e.touches.length > 0) {
+        cx = e.touches[0].clientX;
+        cy = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        cx = e.changedTouches[0].clientX;
+        cy = e.changedTouches[0].clientY;
+      } else {
+        cx = e.clientX;
+        cy = e.clientY;
+      }
 
       if (gameState === 'FROZEN') {
         var target = balls[targetIdx];
@@ -277,17 +300,17 @@ const ATTENTION_GAME_HTML = `
         clearTimeout(freezeTimeout);
 
         if (dist < target.r * 1.8) {
-          // Correct
+          // Correct ✅
           reactionTimes.push(Date.now() - phaseStart);
           correctAnswers++;
         } else {
-          // Wrong ball
+          // Mauvaise balle ❌
           errors++;
         }
         updateScore();
         nextRound();
       } else if (gameState === 'MOVING') {
-        // Impulsive click
+        // Clic impulsif avant l'arrêt
         errors++;
         updateScore();
       }
